@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Minesweeper</string>
     <string name="reset">Reset</string>
+    <string name="uncover_mode">Uncover Mode</string>
 </resources>

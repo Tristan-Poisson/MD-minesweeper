@@ -6,18 +6,22 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import kotlin.random.Random
 
 class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs){
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply{
         textSize = 55.0f
     }
-
+    private lateinit var _textview: TextView
     private var cellColor = Color.BLACK
     private var backColor = Color.WHITE
     private var digColor = Color.GRAY
     private var mineColor = Color.RED
     private var txtColor = Color.BLACK
+    private var markColor = Color.YELLOW
+
 
     private var sizeH = 10
     private var sizeW = 10
@@ -28,6 +32,8 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
     private var gameBoard = Array(sizeH){ IntArray(sizeW){0} }
     private var mineBoard = Array(sizeH){ IntArray(sizeW){-2} }
     private var stat = true
+    var mode = true
+    var marked = mine
 
     init {
         while (mine > 0){
@@ -60,8 +66,20 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
         val touchX : Int = (event.x/100).toInt()
         val touchY : Int= (event.y/100).toInt()
         if (stat)
-            if (touchX < sizeW && touchY < sizeW && touchX >= 0 && touchY >= 0)
-                gameBoard[touchX][touchY] = mineBoard[touchX][touchY]
+            if (mode) {
+                if (gameBoard[touchX][touchY] != -3)
+                    if (touchX < sizeW && touchY < sizeW && touchX >= 0 && touchY >= 0)
+                        gameBoard[touchX][touchY] = mineBoard[touchX][touchY]
+            } else {
+                if (gameBoard[touchX][touchY] == 0) {
+                    gameBoard[touchX][touchY] = -3
+                    marked--
+                }
+                else {
+                    gameBoard[touchX][touchY] = 0
+                    marked++
+                }
+            }
 
         invalidate()
         return true
@@ -103,6 +121,8 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
         }
         else if (gameBoard[posX][posY] == -2)
             paint.color = digColor
+        else if (gameBoard[posX][posY] == -3)
+            paint.color = markColor
         paint.style = Paint.Style.FILL
 
         val cell = Rect((posX * cellSize) + 30, (posY * cellSize) + 5, ((posX  * cellSize) + cellSize) + 25, (posY  * cellSize) + cellSize)
