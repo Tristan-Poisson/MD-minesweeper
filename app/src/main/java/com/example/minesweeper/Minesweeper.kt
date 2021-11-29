@@ -27,6 +27,7 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
     private var mine = 20
     private var gameBoard = Array(sizeH){ IntArray(sizeW){0} }
     private var mineBoard = Array(sizeH){ IntArray(sizeW){-2} }
+    private var stat = true
 
     init {
         while (mine > 0){
@@ -56,11 +57,11 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         super.onTouchEvent(event)
-        var touchX : Int = (event.x/100).toInt()
-        var touchY : Int= (event.y/100).toInt()
-
-        if (touchX < sizeW && touchY < sizeW && touchX >= 0 && touchY >= 0)
-            gameBoard[touchX][touchY] = mineBoard[touchX][touchY]
+        val touchX : Int = (event.x/100).toInt()
+        val touchY : Int= (event.y/100).toInt()
+        if (stat)
+            if (touchX < sizeW && touchY < sizeW && touchX >= 0 && touchY >= 0)
+                gameBoard[touchX][touchY] = mineBoard[touchX][touchY]
 
         invalidate()
         return true
@@ -74,6 +75,23 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
         canvas.drawRect(backgroud, paint)
     }
 
+    fun reset(){
+        mine = 20
+        gameBoard = Array(sizeH){ IntArray(sizeW){0} }
+        mineBoard = Array(sizeH){ IntArray(sizeW){-2} }
+        stat = true
+
+        while (mine > 0){
+            val x = Random.nextInt(0, sizeH - 1)
+            val y = Random.nextInt(0, sizeW - 1)
+            if (mineBoard[x][y] == -2) {
+                mineBoard[x][y] = -1
+                mine--
+            }
+        }
+        invalidate()
+    }
+
     private fun drawCell(canvas: Canvas, posX: Int, posY: Int) {
         var txt = ""
         if (gameBoard[posX][posY] == 0)
@@ -81,6 +99,7 @@ class Minesweeper (context: Context, attrs: AttributeSet) : View(context, attrs)
         else if (gameBoard[posX][posY] == -1) {
             paint.color = mineColor
             txt = "M"
+            stat = false
         }
         else if (gameBoard[posX][posY] == -2)
             paint.color = digColor
